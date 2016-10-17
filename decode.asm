@@ -240,7 +240,7 @@ ProcessQuarter2 proc PUBLIC qStart:DWORD, qSize:DWORD,bufStart:DWORD
 ProcessQuarter2 EndP
 
 
-DecodeFileR5A proc PUBLIC fileMap:DWORD, fileSize:DWORD, origPath:DWORD, uniqueID:DWORD
+DecodeFileR5A proc PUBLIC fileMap:DWORD, fileSize:DWORD, origPath:DWORD, uniqueID:DWORD, uniqueIDLen:DWORD
 	mov eax, offset R5A_key
 	mov keyContent, eax
 	invoke crt_strlen, addr R5A_key
@@ -294,8 +294,7 @@ DecodeFileR5A proc PUBLIC fileMap:DWORD, fileSize:DWORD, origPath:DWORD, uniqueI
 		invoke _DecodeWithXorBuffer,aBuf,contentSize, origPath,eax, keyLen
 	.endif
 	.if need_unique_id  !=0
-		invoke crt_strlen,uniqueID
-		invoke _DecodeWithXorBuffer,aBuf,contentSize, uniqueID,eax, keyLen
+		invoke _DecodeWithXorBuffer,aBuf,contentSize, uniqueID, uniqueIDLen, keyLen
 	.endif
 	invoke _DecodeWithXorBuffer,aBuf,contentSize, keyContent, keyLen, keyLen
 	mov eax, aBuf
