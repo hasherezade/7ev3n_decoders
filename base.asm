@@ -127,22 +127,6 @@ MakeFullPath proc
 	Ret
 MakeFullPath EndP
 
-PreprocessUniqueID proc
-    Local bufLen:DWORD
-    mov processedIdLen, 0
-	invoke crt_strlen, addr uniqueId
-	.if eax == 0
-		Ret
-	.endif
-	
-	mov bufLen, eax ; original length
-	shl eax, 1
-	mov processedIdLen, eax ; unicode length
-	
-	invoke crt_mbstowcs, addr processedId, addr uniqueId, bufLen
-	Ret
-PreprocessUniqueID EndP
-
 DisplayAlgID proc hWin:DWORD, nameBuffer:DWORD
 	invoke GetAlgorithmId, nameBuffer
 	mov algId, eax
@@ -230,8 +214,8 @@ DecodeFileContent proc hWin:DWORD, nameBuffer:DWORD
 		
 	.elseif algId == alg_R5A
 		invoke MakeFullPath
-		invoke PreprocessUniqueID
-		invoke DecodeFileR5A,fileMap,fileSize, addr fullOrigPath, addr processedId, addr processedIdLen
+        invoke crt_strlen, addr uniqueId
+		invoke DecodeFileR5A,fileMap,fileSize, addr fullOrigPath, addr uniqueId, eax
 		mov decodedBuf, eax
 		Ret
 	.endif

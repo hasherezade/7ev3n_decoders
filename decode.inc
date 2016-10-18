@@ -1,5 +1,5 @@
 DecodeFileR4A	PROTO:DWORD, :DWORD
-DecodeFileR5A	PROTO:DWORD, :DWORD, :DWORD,:DWORD,:DWORD
+DecodeFileR5A	PROTO:DWORD, :DWORD, :DWORD, :DWORD, :DWORD
 
 .const
 alg_none equ -1
@@ -28,4 +28,3 @@ fullOrigPath  db 512 dup (?)
 uniqueId db 1024 dup (?)
 processedId db 1024 dup (?)
 
-processedIdLen dd ?
