@@ -32,13 +32,7 @@ keyLen dd ?
 
 .code
 
-TestFile proc PUBLIC Filename:DWORD
-	invoke MessageBox, 0, addr strSuccess, Filename, MB_ICONINFORMATION	
-	Ret
-TestFile EndP
-
-CStrLen proc PUBLIC String:DWORD,MaxStringLen:DWORD
-	push edi
+CStrLen proc PUBLIC uses edi String:DWORD,MaxStringLen:DWORD
 	mov ecx, MaxStringLen ; MAX_STRING_LEN
 	mov edi, String
 	xor eax,eax
@@ -48,13 +42,10 @@ CStrLen proc PUBLIC String:DWORD,MaxStringLen:DWORD
 	mov eax, String
 	sub edi, eax
 	mov eax, edi
-	pop edi
 	Ret
 CStrLen EndP
 
-CStrCmp proc String1:DWORD,String2
-	push esi
-	push edi
+CStrCmp proc uses esi edi String1:DWORD,String2
 	mov esi, String1
 	mov edi, String2
 	
@@ -70,8 +61,6 @@ CStrCmp proc String1:DWORD,String2
 		inc edi
 		jmp check_next
 	.endif
-	pop edi
-	pop esi
 	Ret
 CStrCmp EndP
 
@@ -133,11 +122,7 @@ _DecodeWithXorKey proc fMap:DWORD, fSize:DWORD, xorKey:DWORD, outBuf:DWORD
 	Ret
 _DecodeWithXorKey EndP
 
-_DecodeWithXorBuffer proc ioBuf:DWORD, ioBufSize:DWORD, kBuf:DWORD, kLen:DWORD, rolLen:DWORD
-	push esi
-	push edi
-	push edx
-	push ecx
+_DecodeWithXorBuffer proc uses edi edi ecx edx ioBuf:DWORD, ioBufSize:DWORD, kBuf:DWORD, kLen:DWORD, rolLen:DWORD
 	mov esi, ioBuf
 	mov ecx, ioBufSize
 
@@ -169,18 +154,11 @@ _DecodeWithXorBuffer proc ioBuf:DWORD, ioBufSize:DWORD, kBuf:DWORD, kLen:DWORD, 
 	jmp @decode_next
 	
 	@finish_decoding:
-	pop ecx
-	pop edx
-	pop edi
-	pop esi
 	mov eax, ioBuf
 	Ret
 _DecodeWithXorBuffer EndP
 
-ProcessQuarter1 proc PUBLIC qStart:DWORD, qSize:DWORD,bufStart:DWORD
-	push edi
-	push esi
-	push ecx
+ProcessQuarter1 proc PUBLIC uses edi esi ecx qStart:DWORD, qSize:DWORD,bufStart:DWORD
 	xor ecx,ecx
 	
 	mov esi, qStart
@@ -202,18 +180,12 @@ ProcessQuarter1 proc PUBLIC qStart:DWORD, qSize:DWORD,bufStart:DWORD
 	jmp @loop_top
 	@finish:
 	mov eax, ecx
-	pop ecx
-	pop esi
-	pop edi
 	Ret
 ProcessQuarter1 EndP
 
-ProcessQuarter2 proc PUBLIC qStart:DWORD, qSize:DWORD,bufStart:DWORD
-	push esi
-	push ecx
+ProcessQuarter2 proc PUBLIC uses esi ecx qStart:DWORD, qSize:DWORD,bufStart:DWORD
 	xor ecx,ecx
 	mov esi, qStart
-	
 	add esi, bufStart
 	
 	@loop_top:
@@ -234,8 +206,6 @@ ProcessQuarter2 proc PUBLIC qStart:DWORD, qSize:DWORD,bufStart:DWORD
 	jmp @loop_top
 	@finish:
 	mov eax, ecx
-	pop ecx
-	pop esi
 	Ret
 ProcessQuarter2 EndP
 
@@ -303,7 +273,6 @@ DecodeFileR5A proc PUBLIC fileMap:DWORD, fileSize:DWORD, origPath:DWORD, uniqueI
 DecodeFileR5A EndP
 
 DecodeFileR4A proc PUBLIC fileMap:DWORD, fileSize:DWORD
-
 	mov esi, fileMap
 	mov al, byte ptr [esi]
 	.if al != prefix
@@ -398,6 +367,5 @@ FindSuffix proc PUBLIC fileMapping:DWORD,fileSize:DWORD
 	mov eax,suffixOffset
 	Ret
 FindSuffix EndP
-
 
 End

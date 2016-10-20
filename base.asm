@@ -336,5 +336,4 @@ DlgProc	proc	hWin	:DWORD,
 	ret
 DlgProc	endp
 
-
 end start
