@@ -285,8 +285,8 @@ DecodeFileR5A proc PUBLIC fileMap:DWORD, fileSize:DWORD, origPath:DWORD, uniqueI
 		invoke _DecodeWithXorBuffer,aBuf,contentSize, origPath,eax, keyLen
 	.endif
 	.if need_unique_id  !=0
-	    invoke crt_memcpy, addr processedId, uniqueID, uniqueIDLen
-	    invoke _PreprocessUniqueID, addr processedId, uniqueIDLen
+		invoke crt_memcpy, addr processedId, uniqueID, uniqueIDLen
+		invoke _PreprocessUniqueID, addr processedId, uniqueIDLen
 		invoke _DecodeWithXorBuffer,aBuf,contentSize, addr processedId, uniqueIDLen, keyLen
 	.endif
 	invoke _DecodeWithXorBuffer,aBuf,contentSize, keyContent, keyLen, keyLen
