@@ -231,17 +231,30 @@ _PreprocessUniqueID proc uniqueID:DWORD, uniqueIDLen:DWORD
 	Ret
 _PreprocessUniqueID EndP
 
-DecodeFileR5A proc PUBLIC fileMap:DWORD, fileSize:DWORD, origPath:DWORD, uniqueID:DWORD, uniqueIDLen:DWORD
-	mov eax, offset R5A_key
-	mov keyContent, eax
-	invoke crt_strlen, addr R5A_key
-	mov keyLen, eax ;eax = strlen(R5A_key)
-		
+DecodeFileR5A proc PUBLIC fileMap:DWORD, fileSize:DWORD, origPath:DWORD, uniqueID:DWORD
+	LOCAL uniqueIDLen:DWORD
+    
 	mov esi, fileMap
+	.if esi == NULL
+		xor eax,eax
+		Ret
+	.endif
+	;check content prefix:
 	mov al, byte ptr [esi]
 	.if al != prefix
 		xor eax,eax
 		Ret
+	.endif
+	
+	mov eax, offset R5A_key
+	mov keyContent, eax
+	invoke crt_strlen, addr R5A_key
+	mov keyLen, eax ;eax = strlen(R5A_key)
+	
+	mov uniqueIDLen, 0
+	.if uniqueID != 0
+		invoke crt_strlen, uniqueID
+		mov uniqueIDLen, eax
 	.endif
 	
 	invoke VirtualAlloc,0,fileSize, MEM_COMMIT, PAGE_READWRITE
@@ -282,14 +295,16 @@ DecodeFileR5A proc PUBLIC fileMap:DWORD, fileSize:DWORD, origPath:DWORD, uniqueI
 	invoke ProcessQuarter1, ebx, quarterSize,aBuf
 	.if need_orig_path !=0
 		invoke crt_strlen,origPath
-		invoke _DecodeWithXorBuffer,aBuf,contentSize, origPath,eax, keyLen
+		invoke _DecodeWithXorBuffer,aBuf,contentSize, origPath, eax, keyLen
 	.endif
 	.if need_unique_id  !=0
+		;.if is_variant_c == TRUE:
 		invoke crt_memcpy, addr processedId, uniqueID, uniqueIDLen
 		invoke _PreprocessUniqueID, addr processedId, uniqueIDLen
-		invoke _DecodeWithXorBuffer,aBuf,contentSize, addr processedId, uniqueIDLen, keyLen
+		;.endif
+		invoke _DecodeWithXorBuffer, aBuf, contentSize, addr processedId, uniqueIDLen, keyLen
 	.endif
-	invoke _DecodeWithXorBuffer,aBuf,contentSize, keyContent, keyLen, keyLen
+	invoke _DecodeWithXorBuffer, aBuf, contentSize, keyContent, keyLen, keyLen
 	mov eax, aBuf
 	Ret
 DecodeFileR5A EndP

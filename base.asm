@@ -18,11 +18,11 @@ strFileSaved db "File saved under it's original name", 0
 decodedBuf dd 0
 
 .data?
+fileHandle dd ? 
 fileMap dd ?
+fileMapHndl dd ?
 fileSize dd ?
 algId dd ?
-filePtr dd ?
-writternCntr dd ?
 
 .code
 start:
@@ -33,16 +33,19 @@ start:
 ; -----------------------------------------------------------------------
 
 SaveFile proc Filename:DWORD,fileBuffer:DWORD,bufSize:DWORD
+    LOCAL outFileHndl :DWORD
+    LOCAL outBytesCntr :DWORD
 	invoke CreateFile,Filename, GENERIC_WRITE, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0
 	.if eax == INVALID_HANDLE_VALUE
 		invoke MessageBox, 0, addr strCannotOpen, addr strCannotOpen, MB_ICONERROR
+		xor eax,eax ; failure
 		Ret
 	.endif
-	mov filePtr, eax
-	invoke WriteFile,filePtr,fileBuffer,bufSize, offset writternCntr,0
-	invoke CloseHandle,filePtr
-	mov filePtr,0
-	mov eax, writternCntr
+	mov outFileHndl, eax
+	invoke WriteFile,outFileHndl,fileBuffer,bufSize, addr outBytesCntr,0
+	invoke CloseHandle,outFileHndl
+	mov outFileHndl,0
+	mov eax,outBytesCntr
 	.if bufSize == eax
 		mov eax,1 ;success
 	.else
@@ -55,9 +58,10 @@ FreeFileHandles proc
 	.if fileMap !=0
 		invoke UnmapViewOfFile, fileMap
 	.endif
-	invoke CloseHandle,fileMap
-	invoke CloseHandle, fileHandle
+	invoke CloseHandle,fileMapHndl
+	invoke CloseHandle,fileHandle
 	mov fileMap,0
+	mov fileMapHndl,0
 	mov fileHandle,0
 	mov fileSize, 0
 	Ret
@@ -75,13 +79,13 @@ MapFile proc Filename:DWORD
 	invoke GetFileSize,eax,0
 	mov fileSize, eax
 	invoke CreateFileMapping,fileHandle,0,PAGE_READONLY,0,0,0
+	mov fileMapHndl, eax
 	invoke MapViewOfFile, eax, FILE_MAP_READ, 0, 0, 0
 	mov fileMap, eax
 	.if eax == 0
 		invoke MessageBox, 0, addr strCannotMap, addr strTitle, MB_ICONERROR
 		invoke CloseHandle, fileHandle
-		mov fileHandle,0
-		mov fileSize, 0
+		invoke FreeFileHandles
 		xor eax, eax ; mappedSize = 0
 		Ret
 	.endif
@@ -214,8 +218,7 @@ DecodeFileContent proc hWin:DWORD, nameBuffer:DWORD
 		
 	.elseif algId == alg_R5A
 		invoke MakeFullPath
-        invoke crt_strlen, addr uniqueId
-		invoke DecodeFileR5A,fileMap,fileSize, addr fullOrigPath, addr uniqueId, eax
+		invoke DecodeFileR5A,fileMap,fileSize, addr fullOrigPath, addr uniqueId
 		mov decodedBuf, eax
 		Ret
 	.endif
@@ -280,6 +283,7 @@ DlgProc	proc	hWin	:DWORD,
 		uMsg	:DWORD,
 		wParam	:DWORD,
 		lParam	:DWORD
+
 	.if uMsg == WM_INITDIALOG
 		invoke LoadIcon, hInstance, favicon
 		invoke SendMessage, hWin, WM_SETICON, 1, eax
@@ -336,6 +340,5 @@ DlgProc	proc	hWin	:DWORD,
 	xor	eax,eax
 	ret
 DlgProc	endp
-
 
 end start
