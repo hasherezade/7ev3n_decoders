@@ -60,8 +60,7 @@ decodingSuccess dd 0
 
 .data?
 openFileBuf    OPENFILENAME   <>
-;foundFileBuf    WIN32_FIND_DATA   <>
-fileHandle dd ? 
+
 hInstance		dd		?	;dd can be written as dword
 strBuffer	db	512	dup (?)
 decodedName	db	512	dup (?)
