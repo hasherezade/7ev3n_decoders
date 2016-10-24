@@ -53,7 +53,7 @@ BEGIN
 	CONTROL "",ID_UNIQUE,"Edit",0x10000080,57,98,137,12,0x00000200
 	CONTROL "for variant: B",IDC_STATIC1038,"Static",0x50000000,163,43,167,13,0x00000000
 	CONTROL "Decode full directory",IDC_DECODE_ALL,"Button",0x10000001,7,172,84,19,0x00000000
-	CONTROL "<- if your test files decoder properly, you can decode rest of the files in the same directory",IDC_STATIC1050,"Static",0x50000000,97,173,164,18,0x00000000
+	CONTROL "<- if your test file decoded properly, you can decode rest of the files in the same directory",IDC_STATIC1050,"Static",0x50000000,97,173,164,18,0x00000000
 END
 
 IDD_SCAN_DIR DIALOGEX 0,0,259,207
